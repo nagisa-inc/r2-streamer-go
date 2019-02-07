@@ -84,7 +84,7 @@ type Manifest struct {
 	ID           string `xml:"id,attr"`
 	Href         string `xml:"href,attr"`
 	MediaType    string `xml:"media-type,attr"`
-	Fallback     string `xml:"media-fallback,attr"`
+	Fallback     string `xml:"fallback,attr"`
 	Properties   string `xml:"properties,attr"`
 	MediaOverlay string `xml:"media-overlay,attr"`
 }
