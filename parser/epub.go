@@ -148,6 +148,7 @@ func fillSpineAndResource(publication *models.Publication, book *epub.Epub) {
 		linkSpine := findInSpineByHref(publication, item.Href)
 		if linkSpine.Href == "" {
 			linkItem := models.Link{}
+			linkItem.ID = item.ID
 			linkItem.TypeLink = item.MediaType
 			linkItem.AddHrefAbsolute(item.Href, book.Container.Rootfile.Path)
 			addRelAndPropertiesToLink(&linkItem, &item, book)
@@ -172,6 +173,7 @@ func findInManifestByID(book *epub.Epub, ID string) models.Link {
 	for _, item := range book.Opf.Manifest {
 		if item.ID == ID {
 			linkItem := models.Link{}
+			linkItem.ID = item.ID
 			linkItem.TypeLink = item.MediaType
 			linkItem.AddHrefAbsolute(item.Href, book.Container.Rootfile.Path)
 			addRelAndPropertiesToLink(&linkItem, &item, book)

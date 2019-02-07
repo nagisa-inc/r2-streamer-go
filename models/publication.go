@@ -49,6 +49,7 @@ type Link struct {
 	Children      []Link             `json:"children,omitempty"`
 	Bitrate       int                `json:"bitrate,omitempty"`
 	MediaOverlays []MediaOverlayNode `json:"-"`
+	ID            string             `json:"-"`
 }
 
 // PublicationCollection is used as an extension points for other collections in a Publication
