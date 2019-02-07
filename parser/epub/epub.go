@@ -118,6 +118,9 @@ func OpenEpub(fn string) (*Epub, error) {
 	if errCont != nil {
 		return nil, err
 	}
+	if len(epb.Container.Rootfiles) > 0 {
+		epb.Container.Rootfile = epb.Container.Rootfiles[0]
+	}
 
 	errOpf := epb.parseXML(epb.Container.Rootfile.Path, &epb.Opf)
 	if errOpf != nil {
@@ -149,6 +152,9 @@ func OpenDir(filename string) (*Epub, error) {
 	errCont := epb.parseXML("META-INF/container.xml", &epb.Container)
 	if errCont != nil {
 		return nil, errCont
+	}
+	if len(epb.Container.Rootfiles) > 0 {
+		epb.Container.Rootfile = epb.Container.Rootfiles[0]
 	}
 
 	errOpf := epb.parseXML(epb.Container.Rootfile.Path, &epb.Opf)

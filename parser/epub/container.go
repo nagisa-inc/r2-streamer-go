@@ -2,7 +2,8 @@ package epub
 
 //Container META-INF/container.xml file
 type Container struct {
-	Rootfile Rootfile `xml:"rootfiles>rootfile"`
+	Rootfile  Rootfile
+	Rootfiles []Rootfile `xml:"rootfiles>rootfile"`
 }
 
 //Rootfile root file
