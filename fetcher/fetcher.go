@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"path"
+	"strings"
 
 	"github.com/readium/r2-streamer-go/models"
 )
@@ -47,5 +48,6 @@ func FilePath(publication *models.Publication, publicationResource string) strin
 		}
 	}
 
-	return path.Join(path.Dir(rootFile), publicationResource)
+	rootFileDir := path.Dir(rootFile)
+	return path.Join(rootFileDir, strings.TrimPrefix(publicationResource, rootFileDir))
 }
