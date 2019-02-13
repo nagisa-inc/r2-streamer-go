@@ -16,12 +16,12 @@ func init() {
 // FetchCbz TODO add doc
 func FetchCbz(publication *models.Publication, publicationResource string) (io.ReadSeeker, string, error) {
 	var mediaType string
-	var reader *zip.ReadCloser
+	var reader *zip.Reader
 	var assetFd io.ReadCloser
 
 	for _, data := range publication.Internal {
 		if data.Name == "cbz" {
-			reader = data.Value.(*zip.ReadCloser)
+			reader = data.Value.(*zip.Reader)
 		}
 	}
 
