@@ -21,7 +21,7 @@ type Epub struct {
 	Encryption Encryption
 	LCP        LCP
 
-	zipFd     *zip.ReadCloser
+	zipFd     *zip.Reader
 	directory string
 }
 
@@ -36,9 +36,9 @@ func (epub *Epub) RawOpen(filepath string) (io.ReadCloser, error) {
 }
 
 //Close close file reader
-func (epub *Epub) Close() {
-	epub.zipFd.Close()
-}
+//func (epub *Epub) Close() {
+//	epub.zipFd.Close()
+//}
 
 //-----------------------------------------------------------------------------
 func (epub *Epub) filename(name string) string {
@@ -92,7 +92,7 @@ func (epub *Epub) open(filename string) (io.ReadCloser, error) {
 }
 
 // ZipReader return the internal file descriptor
-func (epub *Epub) ZipReader() *zip.ReadCloser {
+func (epub *Epub) ZipReader() *zip.Reader {
 	return epub.zipFd
 }
 
@@ -117,11 +117,11 @@ func OpenEpub(fn string) (*Epub, error) {
 }
 
 //OpenEpubReader open and parse epub
-func OpenEpubReader(zipFile *zip.ReadCloser) (*Epub, error) {
+func OpenEpubReader(zipFile *zip.Reader) (*Epub, error) {
 	return openEpub(zipFile)
 }
 
-func openEpub(zipFile *zip.ReadCloser) (*Epub, error) {
+func openEpub(zipFile *zip.Reader) (*Epub, error) {
 	epb := Epub{zipFd: zipFile}
 	errCont := epb.parseXML("META-INF/container.xml", &epb.Container)
 	if errCont != nil {

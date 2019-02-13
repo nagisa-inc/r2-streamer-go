@@ -65,7 +65,7 @@ func EpubParser(filePath interface{}) (models.Publication, error) {
 			publication.AddToInternal("epub", book.ZipReader())
 		}
 		_, filename = filepath.Split(fp)
-	case *zip.ReadCloser:
+	case *zip.Reader:
 		book, err = epub.OpenEpubReader(fp)
 		if err != nil {
 			return models.Publication{}, errors.New("can't open or parse epub file with err : " + err.Error())
