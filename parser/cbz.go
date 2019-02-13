@@ -17,40 +17,45 @@ func init() {
 }
 
 // CbzParser TODO add doc
-func CbzParser(filePath string) (models.Publication, error) {
+func CbzParser(filePath interface{}) (models.Publication, error) {
 	var publication models.Publication
 
-	publication.Metadata.Identifier = filePath
-	publication.Context = append(publication.Context, "http://readium.org/webpub/default.jsonld")
-	publication.Metadata.RDFType = "http://schema.org/ComicIssue"
+	switch fp := filePath.(type) {
+	case string:
+		publication.Metadata.Identifier = fp
+		publication.Context = append(publication.Context, "http://readium.org/webpub/default.jsonld")
+		publication.Metadata.RDFType = "http://schema.org/ComicIssue"
 
-	zipReader, err := zip.OpenReader(filePath)
-	if err != nil {
-		return publication, errors.New("can't open or parse cbz file with err : " + err.Error())
-	}
-
-	publication.Internal = append(publication.Internal, models.Internal{Name: "type", Value: "cbz"})
-	publication.Internal = append(publication.Internal, models.Internal{Name: "cbz", Value: zipReader})
-
-	for _, f := range zipReader.File {
-		linkItem := models.Link{}
-		linkItem.TypeLink = getMediaTypeByName(f.Name)
-		linkItem.Href = f.Name
-		if linkItem.TypeLink != "" {
-			publication.Spine = append(publication.Spine, linkItem)
+		zipReader, err := zip.OpenReader(fp)
+		if err != nil {
+			return publication, errors.New("can't open or parse cbz file with err : " + err.Error())
 		}
-		if f.Name == "ComicInfo.xml" {
-			fd, _ := f.Open()
-			defer fd.Close()
-			comicRackMetadata(&publication, fd)
+
+		publication.Internal = append(publication.Internal, models.Internal{Name: "type", Value: "cbz"})
+		publication.Internal = append(publication.Internal, models.Internal{Name: "cbz", Value: zipReader})
+
+		for _, f := range zipReader.File {
+			linkItem := models.Link{}
+			linkItem.TypeLink = getMediaTypeByName(f.Name)
+			linkItem.Href = f.Name
+			if linkItem.TypeLink != "" {
+				publication.Spine = append(publication.Spine, linkItem)
+			}
+			if f.Name == "ComicInfo.xml" {
+				fd, _ := f.Open()
+				defer fd.Close()
+				comicRackMetadata(&publication, fd)
+			}
 		}
+
+		if publication.Metadata.Title.String() == "" {
+			publication.Metadata.Title.SingleString = filePathToTitle(fp)
+		}
+
+		return publication, nil
 	}
 
-	if publication.Metadata.Title.String() == "" {
-		publication.Metadata.Title.SingleString = filePathToTitle(filePath)
-	}
-
-	return publication, nil
+	return publication, errors.New("invalid epub file")
 }
 
 // CbzCallback empty function to respect interface

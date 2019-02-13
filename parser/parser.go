@@ -10,7 +10,7 @@ import (
 // List TODO add doc
 type List struct {
 	fileExt  string
-	parser   (func(filePath string) (models.Publication, error))
+	parser   (func(filePath interface{}) (models.Publication, error))
 	callback (func(*models.Publication))
 }
 

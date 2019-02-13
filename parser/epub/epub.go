@@ -111,12 +111,21 @@ func OpenEpub(fn string) (*Epub, error) {
 	if err != nil {
 		return nil, err
 	}
-	//	defer zipFile.Close()
+	defer zipFile.Close()
 
+	return openEpub(zipFile)
+}
+
+//OpenEpubReader open and parse epub
+func OpenEpubReader(zipFile *zip.ReadCloser) (*Epub, error) {
+	return openEpub(zipFile)
+}
+
+func openEpub(zipFile *zip.ReadCloser) (*Epub, error) {
 	epb := Epub{zipFd: zipFile}
 	errCont := epb.parseXML("META-INF/container.xml", &epb.Container)
 	if errCont != nil {
-		return nil, err
+		return nil, errCont
 	}
 	if len(epb.Container.Rootfiles) > 0 {
 		epb.Container.Rootfile = epb.Container.Rootfiles[0]

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"archive/zip"
 	"encoding/base64"
 	"encoding/xml"
 	"errors"
@@ -31,7 +32,7 @@ func init() {
 }
 
 // EpubParser TODO add doc
-func EpubParser(filePath string) (models.Publication, error) {
+func EpubParser(filePath interface{}) (models.Publication, error) {
 	var publication models.Publication
 	var metaStruct models.Metadata
 	var epubVersion string
@@ -43,28 +44,42 @@ func EpubParser(filePath string) (models.Publication, error) {
 	publication.Metadata = metaStruct
 	publication.Resources = make([]models.Link, 0)
 
-	fileExt := filepath.Ext(filePath)
-	if fileExt == "" {
-		book, err = epub.OpenDir(filePath)
-		if err != nil {
-			return models.Publication{}, errors.New("can't open or parse epub file with err : " + err.Error())
+	filename := ""
+
+	switch fp := filePath.(type) {
+	case string:
+		fileExt := filepath.Ext(fp)
+		if fileExt == "" {
+			book, err = epub.OpenDir(fp)
+			if err != nil {
+				return models.Publication{}, errors.New("can't open or parse epub file with err : " + err.Error())
+			}
+			publication.AddToInternal("type", "epub_dir")
+			publication.AddToInternal("basepath", filePath)
+		} else {
+			book, err = epub.OpenEpub(fp)
+			if err != nil {
+				return models.Publication{}, errors.New("can't open or parse epub file with err : " + err.Error())
+			}
+			publication.AddToInternal("type", "epub")
+			publication.AddToInternal("epub", book.ZipReader())
 		}
-		publication.AddToInternal("type", "epub_dir")
-		publication.AddToInternal("basepath", filePath)
-	} else {
-		book, err = epub.OpenEpub(filePath)
+		_, filename = filepath.Split(fp)
+	case *zip.ReadCloser:
+		book, err = epub.OpenEpubReader(fp)
 		if err != nil {
 			return models.Publication{}, errors.New("can't open or parse epub file with err : " + err.Error())
 		}
 		publication.AddToInternal("type", "epub")
 		publication.AddToInternal("epub", book.ZipReader())
+	default:
+		return models.Publication{}, errors.New("invalid epub file")
 	}
 
 	publication.Context = append(publication.Context, "http://readium.org/webpub/default.jsonld")
 	publication.Metadata.RDFType = "http://schema.org/Book"
 
 	epubVersion = getEpubVersion(book)
-	_, filename := filepath.Split(filePath)
 
 	publication.AddToInternal("filename", filename)
 	publication.AddToInternal("rootfile", book.Container.Rootfile.Path)
