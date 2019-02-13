@@ -113,7 +113,7 @@ func OpenEpub(fn string) (*Epub, error) {
 	}
 	defer zipFile.Close()
 
-	return openEpub(zipFile)
+	return openEpub(&zipFile.Reader)
 }
 
 //OpenEpubReader open and parse epub
